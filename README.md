@@ -1,17 +1,12 @@
-SM Lib - Proclame la bonne parole de sieurs Sam et Max
+Fun MOOC. Une librairie de l'Observatoire de Paris pour la plateforme FUN
 ========================================================
 
-Ce module proclame la bonne parole de sieurs Sam et Max. Puissent-t-ils
-retrouver une totale liberté de pensée cosmique vers un nouvel age
-reminiscent.
+Ce module permet une mise en forme facile avec la génération d'un fichier .css automatique pour les cours sur la plateforme FUN.
 
-Vous pouvez l'installer avec pip:
+Exemple d'utilisation:
 
-    pip install sm_lib
-
-Exemple d'usage:
-
-    >>> from sm_lib import proclamer
-    >>> proclamer()
+    >>> import fun_mooc
+    >>> m = MOOC("mon MOOC")
+    >>> m.generate_exercice("../exo.txt")
 
 Ce code est sous licence WTFPL.
