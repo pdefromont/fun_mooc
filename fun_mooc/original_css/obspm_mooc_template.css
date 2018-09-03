@@ -1,0 +1,167 @@
+<style type="text/css">
+
+/*===================
+ * DEFAUT CATEGORIES
+ *===================*/
+
+
+/* Default formatting */
+.obspm_mooc_default{
+    background-color: global_background_color;
+    padding:10px;
+    padding-top:1px;
+    padding-bottom:1px;
+}
+
+.obspm_mooc_default h1{
+    border-left: 30px solid title_border_color;
+	padding:10px;
+	font-weight: bold;
+	font-size: 120%
+}
+
+.obspm_mooc_default h2{
+    border-left: 20px solid title_border_color;
+	padding:10px;
+	font-weight: bold;
+	font-size: 120%
+}
+
+.obspm_mooc_default p{
+    padding-top:1px;
+    text-align: justify;
+}
+
+/* Tex formatting */
+.obspm_mooc_latex{
+    background-color: global_background_color;
+    padding:10px;
+    padding-top:1px;
+    padding-bottom:1px;
+ }
+
+.obspm_mooc_latex p {
+    padding-top:1px;
+    text-align: justify;
+ }
+
+.obspm_mooc_latex_summary {
+    border-left: 10px solid #000000;
+    border-radius: 20px;
+    background-color: latex_summary_background_color;
+    padding:10px;
+    padding-top:5px;
+    padding-bottom:1px;
+    box-shadow: 5px 5px 10px #9b9b9b
+ }
+
+.obspm_mooc_latex_summary:before {
+	color: #000000;
+	font-size: 120%;
+    font-weight: bold;
+	content:"Résumé"
+}
+
+.obspm_mooc_latex_summary p{
+  padding-top:10px;
+  text-align: justify;
+  font-weight: bold;
+}
+ 
+/* Actualités */
+.obspm_mooc_news {
+	background-color: global_background_color;
+	padding:10px;
+	padding-top:5px;
+	padding-bottom:1px;
+}
+.obspm_mooc_news strong {
+	border-left: 10px solid;
+	padding:10px;
+}
+.obspm_mooc_news h1 {
+	border-left: 30px solid #f4b342;
+	padding:10px;
+	font-weight: bold;
+	color: #f4b342;
+	font-size: 120%;
+}
+.obspm_mooc_news p {
+	padding-top:10px;
+	padding-left:20px;
+	text-align: justify;
+}
+
+/* PLAN */
+.obspm_mooc_plan {
+    background-color: global_background_color;
+	padding:10px;
+	padding-top:5px;
+	padding-bottom:1px;
+	counter-reset: chap_c;
+}
+
+.obspm_mooc_plan h1 {
+	border-left: 30px solid #f4b342;
+	padding:10px;
+	font-weight: bold;
+	color: #f4b342;
+	font-size: 120%;}
+
+.obspm_mooc_plan chap {
+	counter-reset: sec_c;
+	border-left: 10px solid;
+	padding:10px;
+	display:block;
+	margin:80px 40px 40px 40px;
+	font-weight: bold;
+	font-size: 150%;
+}
+
+.obspm_mooc_plan chap:before {
+    counter-increment: chap_c;
+    content: "Chapitre " counter(chap_c) ". ";
+}
+
+.obspm_mooc_plan sec {
+	counter-reset: subsec_c;
+	display: block;
+	margin: 0px 0 10px 60px;
+	font-size: 150%;
+	font-weight: 550;
+	text-transform: none;
+}
+
+.obspm_mooc_plan sec:before {
+    counter-increment: sec_c;
+    content: counter(chap_c) "." counter(sec_c) " - ";
+}
+
+.obspm_mooc_plan subsec {
+	display: block;
+	margin: 0px 0 10px 100px;
+	font-size: 130%;
+	font-weight: 400;
+	text-transform: none;
+}
+
+.obspm_mooc_plan subsec:before {
+    counter-increment: subsec_c;
+    content: counter(chap_c) "." counter(sec_c) "." counter(subsec_c)" - ";
+}
+
+.obspm_mooc_plan eval {
+	display: block;
+	margin: 0px 0 10px 70px;
+	font-size: 150%;
+	font-weight: 700;
+	text-transform: none;
+}
+
+/* Image arrondie */
+.obspm_mooc_roundimage {
+	border-radius: 50%;
+	margin:20px;
+    box-shadow: 7px 7px 10px #9b9b9b
+}
+</style>
