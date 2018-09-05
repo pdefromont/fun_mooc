@@ -34,7 +34,7 @@ class MOOC:
             if res == "y":
                 self.create(**kwargs)
         else:
-            self.load_param()
+            self._load_param()
             print("MOOC", self.name, "correctly loaded.")
 
     @staticmethod
@@ -50,15 +50,20 @@ class MOOC:
             f.close()
             return path
 
-    def load_param(self):
+    def _load_param(self):
         self.params = MOOCUtils.read_ini_file(self.path + "/mooc_parameters.ini", cast=False)
 
     def set_param(self, name, value=None):
+        """
+        Sets a new value for a parameter and updates the css file
+        :param name: the name of the paramter
+        :param value: the new value. If it is not specified, it will be asked
+        """
         file_name = self.path + "/mooc_parameters.ini"
         if value is None:
             value = str(input("\tEnter the value for '" + name + "' : "))
 
-        self.load_param()
+        self._load_param()
         try:
             old_content = MOOCUtils.get_file_content(file_name)
             if name in self.params:
@@ -74,6 +79,18 @@ class MOOC:
             return None
 
     def create(self, **kwargs):
+        """
+        Creates a new MOOC. It creates the various folders, the .css file and sets the global variables.
+        :param kwargs: optionally can be one of the following arguments :
+            - global_background_color
+            - latex_summary_background_color
+            - title_border_color
+            - qcm_color
+            - eval_color
+            - left_delimiter (set to '((' )
+            - right_delimiter (set to '))' )
+            If they are not specified, they will be asked directly
+        """
         print("=" * 30 + "\nCreating MOOC :" + self.name + "\n" + "=" * 30 + "\n\n")
 
         # folders
@@ -86,8 +103,8 @@ class MOOC:
         f.close()
 
         # setting various elements:
-        self.set_param("left_delimiter", '((')
-        self.set_param("right_delimiter", '))')
+        self.set_param("left_delimiter", kwargs.get("left_delimiter", '(('))
+        self.set_param("right_delimiter", kwargs.get("right_delimiter", '))'))
         for key in ["global_background_color", "latex_summary_background_color", "title_border_color"]:
             self.set_param(key, kwargs.get(key, None))
 
@@ -99,8 +116,7 @@ class MOOC:
                             color=kwargs.get("eval_color", None),
                             header="Exercice d'évaluation")
 
-        self.load_param()
-        return True
+        self._load_param()
 
     def _create_folders(self):
         """
@@ -167,7 +183,7 @@ class MOOC:
         """
         updates the css file from parameters and xxx_template.txt
         """
-        self.load_param()
+        self._load_param()
 
         content = self._get_css_content()
         for key in self.params:
@@ -189,6 +205,7 @@ class MOOC:
         :param new_content: the string that contains the new content
         :return: True if the file exists, False else
         """
+        print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
         return MOOCUtils.set_file_content(self.folders["css"] + self.name + ".css", new_content)
 
     def create_css_box(self, title, color=None, header=None, lateral_bar=True, paragraph_in_bold=False, shadow=True):

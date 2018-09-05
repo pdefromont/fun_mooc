@@ -125,13 +125,22 @@ Les différents exercices reconnus sont donc :
 - `INPUT:` : saisie d'une réponse (chaîne de caractère). On spécifie le ou les bonnes réponses.
 - Plus les `IMAGE:` et le texte normal qui est juste formaté pour afficher correctement le code laTex. 
 
+##### remarque : les déilimiteurs `((` et `))` sont contrôlés par les paramètres `left_delimiter`et `right_delimiter`
+
 Pour formatter un tel fichier, il suffit alors d'appeler 
 ```python
+...
 >>> # on charge un mooc déja existant (ou on le crée)
 >>> m = MOOC("mon_mooc")
 MOOC mon_mooc correctly loaded.
 >>> # on formatte un fichier d'entrée. Disons qu'il s'apelle '../input.txt'
 >>> m.generate_exerice(source_file='input.txt', output_name='fichier_sortie', is_evaluation=True)
+Reading file  input.txt
+New exercice recognized (number 1 ) :  QCM
+New exercice recognized (number 2 ) :  CHOICE
+New exercice recognized (number 3 ) :  IMAGE
+New exercice recognized (number 4 ) :  INPUT
+File correctly read. Saving it as  ...
 
 ```
 Ce code est sous licence WTFPL.
