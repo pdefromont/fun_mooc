@@ -1,22 +1,23 @@
 #!/usr/bin/python
-import argparse
-import sys
-import os
-from pathlib import Path
-from utils import MOOC_utils as MOOC_utils
-
-"""
-This scripts translates a .tex file (laTex) to a correctly-formatted .html file that can be directly pasted into the entry field on the FUN platform (edx)
-"""
+# import argparse
+# import sys
+# import os
+# from pathlib import Path
+from fun_mooc.utils import *
 
 
 class MOOC:
-    def __init__(self, name=None):
+    def __init__(self, name=None, **kwargs):
+        """
+        Creates an instance of MOOC.
+        :param name: the name of the MOOC. If this MOOC does not exists, it will ask you to enter a new name.
+        :param kwargs: the keywords that can be passed to the `create(...)` call.
+        """
         if name is None:
-            name = input("Enter Mooc name")
+            name = input("Enter Mooc name : ")
         self.name = name
-        self.path = "mooc_" + self.name
         self.params = None
+        self.path = self.get_path() + "/MOOC_" + self.name
         self.folders = {"css": self.path + "/css/",
                         "exercices": self.path + "/exercices/",
                         "evals": self.path + "/evals/",
@@ -25,10 +26,25 @@ class MOOC:
                         }
 
         if not MOOCUtils.folder_exists(self.path):
-            res = input("Warning : this MOOC does not exists. Do you want to create it ? (y/n) ")
+            res = input("\nThis MOOC does not exists ! Do you want to create it ? (y/n) ")
             if res == "y":
-                self.create()
-        self.load_param()
+                self.create(**kwargs)
+        else:
+            self.load_param()
+            print("MOOC", self.name, "correctly loaded.")
+
+    @staticmethod
+    def get_path():
+        try:
+            paths = open("_path", "r")
+            c = paths.read()
+            return c.strip()
+        except FileNotFoundError:
+            path = os.path.abspath(input("\nEnter the root path where you want to create your MOOCs :"))
+            f = open("_path", "w")
+            f.write(path)
+            f.close()
+            return path
 
     def load_param(self):
         self.params = MOOCUtils.read_ini_file(self.path + "/mooc_parameters.ini")
@@ -53,25 +69,33 @@ class MOOC:
         except FileNotFoundError:
             return None
 
-    def create(self):
-        print("========\nCreating MOOC :" + self.name + "\n========\n\n")
+    def create(self, **kwargs):
+        print("=" * 30 + "\nCreating MOOC :" + self.name + "\n" + "=" * 30 + "\n\n")
 
         # folders
         self._create_folders()
         # css file
         self._create_css()
+        # .ini file
+        f = open(self.path + "/mooc_parameters.ini", "w")
+        f.write("; This file is generated automatically. You can however edit it manually.\n\n[MOOC parameters]\n")
+        f.close()
 
         # setting various elements:
         self.set_param("left_delimiter", '((')
         self.set_param("right_delimiter", '))')
-        self.set_param("global_background_color")
-        self.set_param("latex_summary_background_color")
-        self.set_param("title_border_color")
+        for key in ["global_background_color", "latex_summary_background_color", "title_border_color"]:
+            self.set_param(key, kwargs.get(key, None))
 
         # default boxes
-        self.create_css_box("qcm", color=None, header="Exercice de compréhension")
-        self.create_css_box("eval", color=None, header="Exercice d'évaluation")
+        self.create_css_box("qcm",
+                            color=kwargs.get("qcm_color", None),
+                            header="Exercice de compréhension")
+        self.create_css_box("eval",
+                            color=kwargs.get("eval_color", None),
+                            header="Exercice d'évaluation")
 
+        self.load_param()
         return True
 
     def _create_folders(self):
@@ -81,13 +105,12 @@ class MOOC:
         print("Creating folders ...", end="")
         MOOCUtils.create_folder_if_not_exists(self.path)
         for f in self.folders:
-            MOOCUtils.create_folder_if_not_exists(self.path[f][:-1])
+            MOOCUtils.create_folder_if_not_exists(self.folders[f][:-1])
         print("done")
 
     def _create_css(self):
         """
         Creates the .css and the .ini file
-        :return:
         """
         if not MOOCUtils.file_exists(self.path + "/css/" + self.name + "_template.txt"):
             print("Creating the template css file ...", end="")
@@ -120,8 +143,8 @@ class MOOC:
 
     def set_css_color(self, name, color=None):
         """
-        Sets the color named 'name' to 'color'
-        :param name: a class name
+        Sets the color whose key is 'name' to 'color'
+        :param name: the key of the box (e.g. 'global_background_color')
         :param color: an hexadecimal color
         :return: the color.
         """
@@ -144,24 +167,34 @@ class MOOC:
 
         content = self._get_css_content()
         for key in self.params:
-            print("replacing ", key.strip(), "=>", self.params[key])
+            # print("replacing ", key.strip(), "=>", self.params[key])
             content = content.replace(key.strip(), self.params[key])
         self._set_css_content(content)
 
     def _get_css_content(self, as_line=False):
+        """
+        Get the content of the css file.
+        :param as_line: if True, returns the content as a list of lines
+        :return: the .css content
+        """
         return MOOCUtils.get_file_content(self.folders["css"] + self.name + "_template.txt", as_line=as_line)
 
     def _set_css_content(self, new_content):
+        """
+        Sets the content of the css file.
+        :param new_content: the string that contains the new content
+        :return: True if the file exists, False else
+        """
         return MOOCUtils.set_file_content(self.folders["css"] + self.name + ".css", new_content)
 
     def create_css_box(self, title, color=None, header=None, paragraph_in_bold=False, shadow=True):
         """
-        Creates a custom css box
+        Creates a custom css environment that behaves like a box
         :param title: the name of the class
-        :param color: the color
+        :param color: the color (hexadecimal)
         :param header: the text that appears in the header
-        :param paragraph_in_bold:
-        :param shadow:
+        :param paragraph_in_bold: True if the paragraph should be in bold.
+        :param shadow: True if the box has a shadow
         :return:
         """
         if color is None:
@@ -192,6 +225,11 @@ class MOOC:
 
     @staticmethod
     def _latex_to_mathjax(string):
+        """
+        Translates a string containing latex code to a mathjax-formatted string
+        :param string: the laTex code (containing $$ and \begin{equation} etc)
+        :return: the mathjax formatted string
+        """
         if '$' in string:
             parts = string.split("$")
             string = ""
@@ -204,7 +242,14 @@ class MOOC:
         string = string.replace(r"\end{equation}", "[/mathjax]")
         return string
 
-    def generate_text(self, file_name, environment="default"):
+    def generate_text(self, file_name, output_name=None, environment="default"):
+        """
+        Generates a .html file correctly-formated for FUN with the desired environement. The ouput file
+        :param file_name: the path of the input file. This file can contains laTex code.
+        :param output_name: the name of the output file. If not specified, the file is called as the input. The ouptut file is placed in the /other/ folder.
+        :param environment: the desired environment (box). If not specified, it is set to `default`
+        :return: True if the file was correctly written, False else.
+        """
         try:
             f = open(file_name, "r")
             lines = f.readlines()
@@ -222,17 +267,25 @@ class MOOC:
             content += "\n</div></LINk>"
 
             print("Source correctly read. Generating file", self.path + "/other/" + file_name.split(".")[0] + ".html")
-            f = open(self.folders["other"] + file_name.split(".")[0] + ".html", "w")
+            output_name = output_name if output_name is not None else file_name.split('/')[-1].split(".")[0]
+            f = open(self.folders["other"] + output_name + ".html", "w")
             f.write(content)
             f.close()
 
         except FileNotFoundError:
             print("Error : the file", file_name, "does not exists !")
 
-    def generate_latex_page(self, file_name):
+    def generate_latex_page(self, file_name, output_name=None):
+        """
+        Translates a .tex file to a correctly-formated html file for FUN.
+        :param file_name: the path of the input .tex file. This file can contains laTex code.
+        :param output_name: the name of the output file. If not specified, the file is called as the input. The ouptut file is placed in the /latex/ folder.
+        :return: True if the file was correctly written, False else.
+        """
         print("Formating file", file_name)
 
-        end_file = file_name.split("/")[-1].replace(".tex", ".html")
+        end_file = output_name if output_name is not None else file_name.split('/')[-1].split(".")[0] + ".html"
+
         bashCommand = "pandoc " + file_name + " -s --mathjax -o " + self.path + "/latex/" + end_file
         os.system(bashCommand)
 
@@ -326,7 +379,15 @@ class MOOC:
         new_file.write(file_content)
         new_file.close()
 
-    def generate_exercice(self, source_file, is_evaluation=False, custom_environment=None):
+    def generate_exercice(self, source_file, output_name=None, is_evaluation=False, custom_environment=None):
+        """
+        Generates a .html file correctly-formated for FUN with the desired environement.
+        :param environment: the desired environment (box). If not specified, it is set to `default`
+        :param source_file: the path of the input file. This file can contains laTex code.
+        :param output_name: the name of the output file. If not specified, the file is called as the input. The ouptut file is placed in the /evals/ folder if `is_evaluation=True` else in  /exercices/
+        :param is_evaluation: Specifies if it is a evaluation or not. If `True`, the output file is saved in the /evals/ folder and the environment used is : obspm_mooc_eval
+        :param custom_environment: You can also specify a custom environment.
+        """
         try:
             f = open(source_file, "r")
             lines = f.readlines()
@@ -422,9 +483,10 @@ class MOOC:
 
             global_text += "\n\t</div></LINK>\n</problem>"
 
-            name = self.folders["exercices"] + source_file.split('/')[-1].split('.')[0].strip() + ".html"
+            output_name = output_name if output_name is not None else source_file.split('/')[-1].split(".")[0]
+            name = self.folders["exercices"] + output_name + ".html"
             if is_evaluation:
-                name = self.folders["exercices"] + source_file.split('/')[-1].split('.')[0].strip() + ".html"
+                name = self.folders["evals"] + output_name + ".html"
 
             print("File correctly read. Saving it as ", name)
             f = open(name, "w")

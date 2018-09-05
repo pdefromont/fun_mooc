@@ -71,7 +71,6 @@ class MOOCUtils:
         except ValueError:
             return s
 
-
     @staticmethod
     def string_to_list(s):
         if isinstance(s, str) and ',' in s:
