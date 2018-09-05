@@ -11,11 +11,10 @@ class MOOC:
         if name is None:
             name = input("Enter Mooc name : ")
         self.name = name
-        self.current_path = os.path.abspath(".").replace("\\", "/")
-        print(self.current_path)
+        # the current folder path
+        self.current_path = os.path.realpath(__file__).replace("\\", "/").replace("mooc.py", "")
         self.params = None
         self.path = self._get_write_directory() + "/MOOC_" + self.name
-        print(self.path)
         self.folders = {"css": self.path + "/css/",
                         "exercices": self.path + "/exercices/",
                         "evals": self.path + "/evals/",
@@ -32,15 +31,14 @@ class MOOC:
             self._load_params()
             print("MOOC", self.name, "correctly loaded.")
 
-    @staticmethod
-    def _get_write_directory():
+    def _get_write_directory(self):
         try:
-            paths = open("_path", "r", encoding="utf8")
+            paths = open(self.current_path + "_path", "r", encoding="utf8")
             c = paths.read()
             return c.strip().replace('\\', '/')
         except FileNotFoundError:
             path = os.path.abspath(input("\nEnter the root path where you want to create your MOOCs :")).replace('\\', '/')
-            f = open("_path", "w", encoding="utf8")
+            f = open(self.current_path + "_path", "w", encoding="utf8")
             f.write(path)
             f.close()
             return path
@@ -70,6 +68,8 @@ class MOOC:
             self.params[name] = value
 
             self._update_css()
+
+            print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
         except FileNotFoundError:
             return None
 
@@ -132,9 +132,9 @@ class MOOC:
             print("Creating the template css file ...", end="")
 
             # copy template_file
-            content = MOOCUtils.get_file_content(self.current_path + "/original_css/obspm_mooc_template.css")
+            content = MOOCUtils.get_file_content(self.current_path + "original_css/obspm_mooc_template.css")
             if content is None:
-                print("File obspm_mooc_template.css not found in ", self.current_path + "/original_css/obspm_mooc_template.css")
+                print("File obspm_mooc_template.css not found in ", self.current_path + "original_css/obspm_mooc_template.css")
                 return False
 
             MOOCUtils.set_file_content(self.path + "/css/" + self.name + "_template.txt", content)
@@ -149,9 +149,9 @@ class MOOC:
             print("Creating the css file ...", end="")
 
             # copy template_file
-            content = MOOCUtils.get_file_content(self.current_path + "/original_css/obspm_mooc_template.css")
+            content = MOOCUtils.get_file_content(self.current_path + "original_css/obspm_mooc_template.css")
             if content is None:
-                print("File obspm_mooc_template.css not found in ", self.current_path + "/original_css/obspm_mooc_template.css")
+                print("File obspm_mooc_template.css not found in ", self.current_path + "original_css/obspm_mooc_template.css")
                 return False
 
             self._set_css_content(content)
@@ -403,9 +403,9 @@ class MOOC:
             if is_evaluation:
                 global_text = '<problem>\n<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<div class="obspm_mooc_eval">\n'
             elif custom_environment is not None:
-                global_text = '<problem>\n<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<problem>\n<div class="obspm_mooc_' + custom_environment + '>\n'
+                global_text = '<problem>\n<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<div class="obspm_mooc_' + custom_environment + '>\n'
             else:
-                global_text ='<problem>\n<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<problem>\n<div class="obspm_mooc_qcm">\n'
+                global_text ='<problem>\n<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<div class="obspm_mooc_qcm">\n'
 
             keywords = ["QCM", "IMAGE", "CHOICE", "INPUT"]
             current_env = ""
@@ -495,7 +495,7 @@ class MOOC:
 
             print("File correctly read. Saving it as ", name)
             f = open(name, "w", encoding="utf8")
-            print(f)
+            f.write(global_text)
             f.close()
 
         except FileNotFoundError:
