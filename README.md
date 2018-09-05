@@ -14,7 +14,8 @@ Dans ce module, chaque MOOC est repéré par son nom (e.g. <i>mon_mooc</i>). A c
     - <b>/evals</b> : contient les fichiers .html des évaluations
     - <b>/latex</b> : contient les fichiers .html traduits à partir d'un fichier .tex
     - <b>/other</b> : contient les autres fichiers .html
-   
+    - <b>/inputs</b> : le repertoire où placer les fichiers à formatter (voir à la fin)
+  
 Dans chacun de ces dossiers, les fichiers html générés sont formatés pour être directement copiables sur la plateforme FUN tels quels.
 
 ##### ATTENTION : une fois le fichier css créé (instanciation du nouveau MOOC), il faudra impérativement l'uploader sur FUN sans quoi la mise en forme ne sera pas prise en compte. Chaque fois que le fichier est modifié, il faudra de nouveau l'uploader sur FUN.
@@ -80,11 +81,12 @@ MOOC mon_mooc correctly loaded.
 #### Formatter des fichiers pour FUN
 
 Le coeur de la classe `MOOC` est de pouvoir formatter correctement des fichiers textes pour les rendre directement copiables sur FUN.
+##### Attention : ces fichiers doivent se trouver dans le dossier _inputs/_ du MOOC !
 Il existe trois formatages différents :
 
 - `generate_text()` : cette fonction lit le fichier en entrée et crée un fichier de sortie dans le répertoire <b>other/</b>.
 Le texte ainsi généré peut être mis en forme selon l'environnement souhaité en spécifiant la variable `environment=...`
-- `generate_latex_page()` : met en page un fichier .tex de manière à ce qu'il apparaisse correctemeent sur FUN.
+- `generate_latex_page()` : met en page un fichier .tex de manière à ce qu'il apparaisse correctement sur FUN.
     * remarque 1 : cette fonction nécéssite [pandoc](https://pandoc.org/) !
     * remarque 2 : cette fonction repère les 'résumés' laTex quand ils sont formatés de la manière suivante :
     ```latex
@@ -92,7 +94,7 @@ Le texte ainsi généré peut être mis en forme selon l'environnement souhaité
     ```
 - `generate_exercice()` : met en page un fichier (texte) de façon à générer des exerices (QCM ou évaluation). Pour être correctement interprété, ce fichier doit être formaté comme selon cet exemple :
 ```text
-é contenu du fichier d'input, disons 'input.txt'
+# contenu du fichier d'input, disons 'input.txt'
 # un qcm
 QCM: Quelle est la couleur du cheval blanc d'Henry IV ?
 - Bleu
@@ -129,7 +131,7 @@ Pour formatter un tel fichier, il suffit alors d'appeler
 >>> m = MOOC("mon_mooc")
 MOOC mon_mooc correctly loaded.
 >>> # on formatte un fichier d'entrée. Disons qu'il s'apelle '../input.txt'
->>> m.generate_exerice(source_file='../input.txt', output_name='fichier_sortie', is_evaluation=True)
+>>> m.generate_exerice(source_file='input.txt', output_name='fichier_sortie', is_evaluation=True)
 
 ```
 Ce code est sous licence WTFPL.

@@ -3,20 +3,20 @@
 from setuptools import setup, find_packages
 
 
-with open('README.rst') as f:
+with open('README.md') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='sample',
+    name='fun_mooc',
     version='0.1.0',
-    description='Sample package for Python-Guide.org',
+    description='Une librairie pour formatter simplement sur la plateforme FUN',
     long_description=readme,
-    author='Kenneth Reitz',
-    author_email='me@kennethreitz.com',
-    url='https://github.com/kennethreitz/samplemod',
+    author='Paul de Fromont',
+    author_email='paul.de.fromont@gmail.com',
+    url='https://github.com/pdefromont/fun_mooc',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages()
 )
