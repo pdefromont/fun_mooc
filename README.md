@@ -1,4 +1,4 @@
-Fun MOOC. Une librairie de l'Observatoire de Paris pour la plateforme FUN
+Fun MOOC.
 ========================================================
 
 Ce module permet une mise en forme facile avec la génération d'un fichier .css automatique pour les cours sur la plateforme FUN.
