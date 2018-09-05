@@ -16,13 +16,17 @@ class MOOC:
         if name is None:
             name = input("Enter Mooc name : ")
         self.name = name
+        self.current_path = os.path.abspath(".").replace("\\", "/")
+        print(self.current_path)
         self.params = None
-        self.path = self.get_path() + "/MOOC_" + self.name
+        self.path = self.get_write_directory() + "/MOOC_" + self.name
+        print(self.path)
         self.folders = {"css": self.path + "/css/",
                         "exercices": self.path + "/exercices/",
                         "evals": self.path + "/evals/",
                         "latex": self.path + "/latex/",
-                        "other": self.path + "/other/"
+                        "other": self.path + "/other/",
+                        "inputs": self.path + "/inputs/"
                         }
 
         if not MOOCUtils.folder_exists(self.path):
@@ -34,25 +38,25 @@ class MOOC:
             print("MOOC", self.name, "correctly loaded.")
 
     @staticmethod
-    def get_path():
+    def get_write_directory():
         try:
-            paths = open("_path", "r")
+            paths = open("_path", "r", encoding="utf8")
             c = paths.read()
-            return c.strip()
+            return c.strip().replace('\\', '/')
         except FileNotFoundError:
-            path = os.path.abspath(input("\nEnter the root path where you want to create your MOOCs :"))
-            f = open("_path", "w")
+            path = os.path.abspath(input("\nEnter the root path where you want to create your MOOCs :")).replace('\\', '/')
+            f = open("_path", "w", encoding="utf8")
             f.write(path)
             f.close()
             return path
 
     def load_param(self):
-        self.params = MOOCUtils.read_ini_file(self.path + "/mooc_parameters.ini")
+        self.params = MOOCUtils.read_ini_file(self.path + "/mooc_parameters.ini", cast=False)
 
     def set_param(self, name, value=None):
         file_name = self.path + "/mooc_parameters.ini"
         if value is None:
-            value = input("\tEnter the value for '" + name + "' : ")
+            value = str(input("\tEnter the value for '" + name + "' : "))
 
         self.load_param()
         try:
@@ -77,7 +81,7 @@ class MOOC:
         # css file
         self._create_css()
         # .ini file
-        f = open(self.path + "/mooc_parameters.ini", "w")
+        f = open(self.path + "/mooc_parameters.ini", "w", encoding="utf8")
         f.write("; This file is generated automatically. You can however edit it manually.\n\n[MOOC parameters]\n")
         f.close()
 
@@ -116,9 +120,9 @@ class MOOC:
             print("Creating the template css file ...", end="")
 
             # copy template_file
-            content = MOOCUtils.get_file_content("original_css/obspm_mooc_template.css")
+            content = MOOCUtils.get_file_content(self.current_path + "/original_css/obspm_mooc_template.css")
             if content is None:
-                print("File obspm_mooc_template.css not found in ./original_css/ !")
+                print("File obspm_mooc_template.css not found in ", self.current_path + "/original_css/obspm_mooc_template.css")
                 return False
 
             MOOCUtils.set_file_content(self.path + "/css/" + self.name + "_template.txt", content)
@@ -133,9 +137,9 @@ class MOOC:
             print("Creating the css file ...", end="")
 
             # copy template_file
-            content = MOOCUtils.get_file_content("original_css/obspm_mooc_template.css")
+            content = MOOCUtils.get_file_content(self.current_path + "/original_css/obspm_mooc_template.css")
             if content is None:
-                print("File obspm_mooc_template.css not found in current folder !")
+                print("File obspm_mooc_template.css not found in ", self.current_path + "/original_css/obspm_mooc_template.css")
                 return False
 
             self._set_css_content(content)
@@ -149,7 +153,7 @@ class MOOC:
         :return: the color.
         """
         if color is None:
-            color = input("Enter the color (hexadecimal format : '#xxxx') for the box " + name + " :")
+            color = str(input("Enter the color (hexadecimal format : '#xxxx') for the box " + name + " :"))
 
         # setting the new parameter
         self.set_param(name, color)
@@ -255,7 +259,7 @@ class MOOC:
         :return: True if the file was correctly written, False else.
         """
         try:
-            f = open(file_name, "r")
+            f = open(self.folders["inputs"] + file_name, "r", encoding="utf8")
             lines = f.readlines()
             f.close()
 
@@ -272,7 +276,7 @@ class MOOC:
 
             print("Source correctly read. Generating file", self.path + "/other/" + file_name.split(".")[0] + ".html")
             output_name = output_name if output_name is not None else file_name.split('/')[-1].split(".")[0]
-            f = open(self.folders["other"] + output_name + ".html", "w")
+            f = open(self.folders["other"] + output_name + ".html", "w", encoding="utf8")
             f.write(content)
             f.close()
 
@@ -288,13 +292,14 @@ class MOOC:
         """
         print("Formating file", file_name)
 
+        file_name = file_name if file_name.endswith(".tex") else file_name + ".tex"
         end_file = output_name if output_name is not None else file_name.split('/')[-1].split(".")[0] + ".html"
 
-        bashCommand = "pandoc " + file_name + " -s --mathjax -o " + self.path + "/latex/" + end_file
+        bashCommand = "pandoc " + self.folders["inputs"] + file_name + " -s --mathjax -o " + self.path + "/latex/" + end_file
         os.system(bashCommand)
 
         # modifying file
-        file = open(self.path + "/latex/" + end_file, "r")
+        file = open(self.path + "/latex/" + end_file, "r", encoding="utf8")
         file_content = file.read()
         file.close()
 
@@ -326,7 +331,7 @@ class MOOC:
 
         # summary
         print("\nlooking for summary")
-        texfile = open(self.path + "/latex/" + end_file)
+        texfile = open(self.path + "/latex/" + end_file, encoding="utf8")
         tex_file_content = texfile.read()
         texfile.close()
 
@@ -344,13 +349,13 @@ class MOOC:
             print("\nsummary founded !")
 
             # temp_file
-            temp_tex = open("temp.tex", "w")
+            temp_tex = open("temp.tex", "w", encoding="utf8")
             temp_tex.write(summary)
             temp_tex.close()
 
             os.system("pandoc temp.tex -s --mathjax -o temp.html")
 
-            temp_tex = open("temp.html", "r")
+            temp_tex = open("temp.html", "r", encoding="utf8")
             summary = temp_tex.read().split("<body>")[1].split("</body>")[0]
             temp_tex.close()
 
@@ -379,7 +384,7 @@ class MOOC:
                 file_content = first_part[0] + '\n<div>\n</body>' + first_part[1]
 
         print("saving final file !")
-        new_file = open(self.folders["latex"] + end_file, "w")
+        new_file = open(self.folders["latex"] + end_file, "w", encoding="utf8")
         new_file.write(file_content)
         new_file.close()
 
@@ -393,7 +398,7 @@ class MOOC:
         :param custom_environment: You can also specify a custom environment.
         """
         try:
-            f = open(source_file, "r")
+            f = open(self.folders["inputs"] + source_file, "r", encoding="utf8")
             lines = f.readlines()
             f.close()
 
@@ -493,8 +498,8 @@ class MOOC:
                 name = self.folders["evals"] + output_name + ".html"
 
             print("File correctly read. Saving it as ", name)
-            f = open(name, "w")
-            f.write(global_text)
+            f = open(name, "w", encoding="utf8")
+            print(f)
             f.close()
 
         except FileNotFoundError:

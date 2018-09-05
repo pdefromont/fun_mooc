@@ -24,7 +24,7 @@ class MOOCUtils:
     @staticmethod
     def get_file_content(file_path, as_line=False):
         try:
-            f = open(file_path, "r")
+            f = open(file_path, "r", encoding="utf8")
             if as_line:
                 content = f.readlines()
             else:
@@ -37,7 +37,7 @@ class MOOCUtils:
     @staticmethod
     def set_file_content(file_path, content):
         try:
-            f = open(file_path, "w")
+            f = open(file_path, "w", encoding="utf8")
             f.write(content)
             f.close()
             return True
@@ -89,13 +89,15 @@ class MOOCUtils:
                     else:
                         l.append(e.strip())
             return l
-        else:
+        elif cast:
             return MOOCUtils.smart_cast(s.strip())
+        else:
+            return s.strip()
 
     @staticmethod
     def read_ini_file(file_name, cast=True):
         try:
-            file = open(file_name, "r")
+            file = open(file_name, "r", encoding="utf8")
             lines = file.readlines()
             file.close()
             params = dict()

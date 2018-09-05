@@ -92,6 +92,7 @@ Le texte ainsi généré peut être mis en forme selon l'environnement souhaité
     ```
 - `generate_exercice()` : met en page un fichier (texte) de façon à générer des exerices (QCM ou évaluation). Pour être correctement interprété, ce fichier doit être formaté comme selon cet exemple :
 ```text
+é contenu du fichier d'input, disons 'input.txt'
 # un qcm
 QCM: Quelle est la couleur du cheval blanc d'Henry IV ?
 - Bleu
@@ -122,4 +123,13 @@ Les différents exercices reconnus sont donc :
 - `INPUT:` : saisie d'une réponse (chaîne de caractère). On spécifie le ou les bonnes réponses.
 - Plus les `IMAGE:` et le texte normal qui est juste formaté pour afficher correctement le code laTex. 
 
+Pour formatter un tel fichier, il suffit alors d'appeler 
+```python
+>>> # on charge un mooc déja existant (ou on le crée)
+>>> m = MOOC("mon_mooc")
+MOOC mon_mooc correctly loaded.
+>>> # on formatte un fichier d'entrée. Disons qu'il s'apelle '../input.txt'
+>>> m.generate_exerice(source_file='../input.txt', output_name='fichier_sortie', is_evaluation=True)
+
+```
 Ce code est sous licence WTFPL.
