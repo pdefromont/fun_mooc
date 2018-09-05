@@ -1,5 +1,5 @@
-Fun MOOC.
-========================================================
+Fun MOOC
+=
 
 Ce module permet une mise en forme facile avec la génération d'un fichier .css automatique pour les cours sur la plateforme FUN.
 
@@ -16,17 +16,17 @@ Dans ce module, chaque MOOC est repéré par son nom (e.g. <i>mon_mooc</i>). A c
     - <b>/other</b> : contient les autres fichiers .html
     - <b>/inputs</b> : le repertoire où placer les fichiers à formatter (voir à la fin)
   
-Dans chacun de ces dossiers, les fichiers html générés sont formatés pour être directement copiables sur la plateforme FUN tels quels.
+Dans chacun de ces dossiers, les fichiers html générés sont formatés pour être directement copiables sur la plateforme FUN sans modification.
 
 ##### ATTENTION : une fois le fichier css créé (instanciation du nouveau MOOC), il faudra impérativement l'uploader sur FUN sans quoi la mise en forme ne sera pas prise en compte. Chaque fois que le fichier est modifié, il faudra de nouveau l'uploader sur FUN.
 
 ### Le fichier .css
 
 Le fichier css décrit la mise en forme du contenu qui apparaîtra sur la plateforme. 
-Il défini plusieurs <i>environements</i> qui ont leur propre mise en forme. 
+Il défini plusieurs <i>environnements</i> qui ont leur propre mise en forme. 
 Les environnements sont définis par 
 - La couleur du fond : la même pour tout le MOOC et contrôlée par `global_background_color`
-- La couleur de la barre latérale (à gauche) : si l'environnement s'appelle xxx, cette couleur s'apelle xxx_color
+- La couleur de la barre latérale (à gauche) : si l'environnement s'appelle xxx, cette couleur s'apelle `xxx_color`
 - La présence ou non d'une ombre
 - Son en-tête : le texte qui apparaît en haut de l'environnement
 
@@ -57,26 +57,26 @@ Chaque MOOC sera alors créé dans ce répertoire sous le nom `"mooc_XXX/"`.
 ...
 
 ```
-A la création d'un objet `MOOC`, il vous sera demandé de donner les valeurs (en hexadécimal) de plusieurs environnements. 
+A la création d'un objet `MOOC`, il vous sera demandé de donner les valeurs (en hexadécimal) de différentes couleurs. Ces couleurs peuvent être modifiées à postériori. 
 
 Si le MOOC de ce nom existe déjà, il sera simplement chargé.
 
 #### Editer le css d'un MOOC
 
-Pour éditer l'apparence d'un MOOC, il faut éditer son fichier css. La classe `MOOC` possède plusieurs fonctions pour le faire simplement.
-- Pour changer la couleur d'un environnement 'env' (c'est à dire la couleur de la barre latérale et de l'en-tête), il suffit d'appeler la fonction `set_css_color(env, new_color)`. 
-- Pour créer un nouvel environnement, appeler la fonction `create_css_box`, par exemple:
+Pour changer l'apparence d'un MOOC, il faut éditer son fichier css. La classe `MOOC` possède plusieurs fonctions pour le faire simplement.
+- Pour changer la couleur d'un environnement `mon_environnement` (c'est à dire la couleur de la barre latérale et de l'en-tête), il suffit d'appeler la fonction `set_css_color(mon_environnement, new_color)`. 
+- Pour créer un nouvel environnement, appeler la fonction `create_css_environment()`, par exemple:
 ```python
 >>> # on charge un mooc déja existant
 >>> m = MOOC("mon_mooc")
 MOOC mon_mooc correctly loaded.
 >>> # on crée un environnement nommé 'ma_boite'
->>> m.create_css_environment(title="ma_boite", color="#efefef", header="Mon en-tête", lateral_bar=True, shadow=True)
+>>> m.create_css_environment(title="ma_boite", color="#e3eae4", header="Mon en-tête", lateral_bar=True, shadow=True)
 ...
 ```
 - Pour mettre à jour une autre variable (e.g. la couleur du fond `global_background_color`), appeler la fonction `set_param(key, color)`
 
-##### ATTENTION : chaque fois que le fichier css est modifié, il faudra de nouveau l'uploader sur FUN.
+##### Attention : chaque fois que le fichier css est modifié, il faudra de nouveau l'uploader sur FUN.
 
 #### Formatter des fichiers pour FUN
 
@@ -92,7 +92,8 @@ Le texte ainsi généré peut être mis en forme selon l'environnement souhaité
     ```latex
     \fbox{\parbox{\textwidth}{\textbf{Résumé} : ceci est mon résumé }}
     ```
-- `generate_exercice()` : met en page un fichier (texte) de façon à générer des exerices (QCM ou évaluation). Pour être correctement interprété, ce fichier doit être formaté comme selon cet exemple :
+    Un résumé repéré sera mis en page de manière spécifique.
+- `generate_exercice()` : met en page un fichier (texte) de façon à générer des exercices (QCM ou évaluation). Pour être correctement interprété, ce fichier doit être formaté comme cet exemple :
 ```text
 # contenu du fichier d'input, disons 'input.txt'
 # un qcm
@@ -125,15 +126,14 @@ Les différents exercices reconnus sont donc :
 - `INPUT:` : saisie d'une réponse (chaîne de caractère). On spécifie le ou les bonnes réponses.
 - Plus les `IMAGE:` et le texte normal qui est juste formaté pour afficher correctement le code laTex. 
 
-##### remarque : les déilimiteurs `((` et `))` sont contrôlés par les paramètres `left_delimiter`et `right_delimiter`
+##### remarque : les délimiteurs `((` et `))` sont définis par les paramètres `left_delimiter`et `right_delimiter`
 
 Pour formatter un tel fichier, il suffit alors d'appeler 
 ```python
 ...
->>> # on charge un mooc déja existant (ou on le crée)
->>> m = MOOC("mon_mooc")
-MOOC mon_mooc correctly loaded.
->>> # on formatte un fichier d'entrée. Disons qu'il s'apelle '../input.txt'
+>>> # si 'm' est une instance de MOOC
+>>> # on formatte un fichier d'entrée. Disons qu'il s'apelle 'input.txt'
+>>>
 >>> m.generate_exerice(source_file='input.txt', output_name='fichier_sortie', is_evaluation=True)
 Reading file  input.txt
 New exercice recognized (number 1 ) :  QCM
@@ -143,4 +143,5 @@ New exercice recognized (number 4 ) :  INPUT
 File correctly read. Saving it as  ...
 
 ```
-Ce code est sous licence WTFPL.
+## Licence
+Ce code est sous licence MIT.
