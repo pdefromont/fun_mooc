@@ -187,12 +187,13 @@ class MOOC:
         """
         return MOOCUtils.set_file_content(self.folders["css"] + self.name + ".css", new_content)
 
-    def create_css_box(self, title, color=None, header=None, paragraph_in_bold=False, shadow=True):
+    def create_css_box(self, title, color=None, header=None, lateral_bar=True, paragraph_in_bold=False, shadow=True):
         """
         Creates a custom css environment that behaves like a box
         :param title: the name of the class
         :param color: the color (hexadecimal)
         :param header: the text that appears in the header
+        :param lateral_bar: displays a lateral if True
         :param paragraph_in_bold: True if the paragraph should be in bold.
         :param shadow: True if the box has a shadow
         :return:
@@ -202,7 +203,10 @@ class MOOC:
         # first, sets the parameters
         self.set_param(title + '_color', color)
 
-        file_content = "\n\n/* custom box : " + title + " */\n.obspm_mooc_" + title + "{\n\tborder-left: 10px solid " + title + "_color;\n\tbackground-color: global_background_color;\n\tpadding:10px;\n\tpadding-top:5px;\n\tpadding-bottom:1px;"
+        file_content = "\n\n/* custom box : " + title + " */\n.obspm_mooc_" + title + "{"
+        if lateral_bar:
+            file_content += "\n\tborder-left: 10px solid " + title + "_color;"
+        file_content += "\n\tbackground-color: global_background_color;\n\tpadding:10px;\n\tpadding-top:5px;\n\tpadding-bottom:1px;"
         if shadow:
             file_content += "\n\tbox-shadow: 5px 5px 10px #9b9b9b;"
         file_content += "\n}\n"
