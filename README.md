@@ -39,7 +39,7 @@ Il possède une barre latérale dont la couleur est spécifiée par la variable 
 - <b>eval</b> : l'environnement des exercices d'évaluation. L'en-tête est : <i>Exercice d'évaluation</i>.
 Il possède une barre latérale dont la couleur est spécifiée par la variable `eval_color`
 
-Une fois le MOOC créé, il est possible de créer des environnements très simplement avec la mthéode `create_css_box`.
+Une fois le MOOC créé, il est possible de créer des environnements très simplement avec la mthéode `create_css_environment`.
 
 ### La classe `MOOC`
 
@@ -57,7 +57,7 @@ Chaque MOOC sera alors créé dans ce répertoire sous le nom `"mooc_XXX/"`.
 ...
 
 ```
-A la création d'un objet `MOOC`, il vous sera demandé de donner les valeurs (en hexadécimal) de plusieurs environements. 
+A la création d'un objet `MOOC`, il vous sera demandé de donner les valeurs (en hexadécimal) de plusieurs environnements. 
 
 Si le MOOC de ce nom existe déjà, il sera simplement chargé.
 
@@ -71,10 +71,10 @@ Pour éditer l'apparence d'un MOOC, il faut éditer son fichier css. La classe `
 >>> m = MOOC("mon_mooc")
 MOOC mon_mooc correctly loaded.
 >>> # on crée un environnement nommé 'ma_boite'
->>> m.create_css_box(title="ma_boite", color="#efefef", header="Mon en-tête", lateral_bar=True, shadow=True)
+>>> m.create_css_environment(title="ma_boite", color="#efefef", header="Mon en-tête", lateral_bar=True, shadow=True)
 ...
 ```
-- Pour mettre à jour une autre variable (e.g. la couleur du fond `global_background_color`), appeler la fonction `set_css_color(key, color)`
+- Pour mettre à jour une autre variable (e.g. la couleur du fond `global_background_color`), appeler la fonction `set_param(key, color)`
 
 ##### ATTENTION : chaque fois que le fichier css est modifié, il faudra de nouveau l'uploader sur FUN.
 

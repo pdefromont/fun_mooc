@@ -1,9 +1,4 @@
-#!/usr/bin/python
-# import argparse
-# import sys
-# import os
-# from pathlib import Path
-from fun_mooc.utils import *
+from fun_mooc.mooc_formatter import *
 
 
 class MOOC:
@@ -19,7 +14,7 @@ class MOOC:
         self.current_path = os.path.abspath(".").replace("\\", "/")
         print(self.current_path)
         self.params = None
-        self.path = self.get_write_directory() + "/MOOC_" + self.name
+        self.path = self._get_write_directory() + "/MOOC_" + self.name
         print(self.path)
         self.folders = {"css": self.path + "/css/",
                         "exercices": self.path + "/exercices/",
@@ -34,11 +29,11 @@ class MOOC:
             if res == "y":
                 self.create(**kwargs)
         else:
-            self._load_param()
+            self._load_params()
             print("MOOC", self.name, "correctly loaded.")
 
     @staticmethod
-    def get_write_directory():
+    def _get_write_directory():
         try:
             paths = open("_path", "r", encoding="utf8")
             c = paths.read()
@@ -50,7 +45,7 @@ class MOOC:
             f.close()
             return path
 
-    def _load_param(self):
+    def _load_params(self):
         self.params = MOOCUtils.read_ini_file(self.path + "/mooc_parameters.ini", cast=False)
 
     def set_param(self, name, value=None):
@@ -63,7 +58,7 @@ class MOOC:
         if value is None:
             value = str(input("\tEnter the value for '" + name + "' : "))
 
-        self._load_param()
+        self._load_params()
         try:
             old_content = MOOCUtils.get_file_content(file_name)
             if name in self.params:
@@ -74,7 +69,7 @@ class MOOC:
             MOOCUtils.set_file_content(file_name, old_content)
             self.params[name] = value
 
-            self.update_css()
+            self._update_css()
         except FileNotFoundError:
             return None
 
@@ -109,14 +104,15 @@ class MOOC:
             self.set_param(key, kwargs.get(key, None))
 
         # default boxes
-        self.create_css_box("qcm",
-                            color=kwargs.get("qcm_color", None),
-                            header="Exercice de compréhension")
-        self.create_css_box("eval",
-                            color=kwargs.get("eval_color", None),
-                            header="Exercice d'évaluation")
+        self.create_css_environment("qcm",
+                                    color=kwargs.get("qcm_color", None),
+                                    header="Exercice de compréhension")
+        self.create_css_environment("eval",
+                                    color=kwargs.get("eval_color", None),
+                                    header="Exercice d'évaluation")
 
-        self._load_param()
+        print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
+        self._load_params()
 
     def _create_folders(self):
         """
@@ -175,15 +171,16 @@ class MOOC:
         self.set_param(name, color)
 
         # nox update the css file
-        self.update_css()
+        self._update_css()
 
+        print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
         return color
 
-    def update_css(self):
+    def _update_css(self):
         """
         updates the css file from parameters and xxx_template.txt
         """
-        self._load_param()
+        self._load_params()
 
         content = self._get_css_content()
         for key in self.params:
@@ -205,10 +202,9 @@ class MOOC:
         :param new_content: the string that contains the new content
         :return: True if the file exists, False else
         """
-        print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
         return MOOCUtils.set_file_content(self.folders["css"] + self.name + ".css", new_content)
 
-    def create_css_box(self, title, color=None, header=None, lateral_bar=True, paragraph_in_bold=False, shadow=True):
+    def create_css_environment(self, title, color=None, header=None, lateral_bar=True, paragraph_in_bold=False, shadow=True):
         """
         Creates a custom css environment that behaves like a box
         :param title: the name of the class
@@ -245,27 +241,10 @@ class MOOC:
         MOOCUtils.set_file_content(self.folders["css"] + self.name + "_template.txt", old_content)
 
         # now update the css file
-        self.update_css()
-        return old_content
+        self._update_css()
 
-    @staticmethod
-    def _latex_to_mathjax(string):
-        """
-        Translates a string containing latex code to a mathjax-formatted string
-        :param string: the laTex code (containing $$ and \begin{equation} etc)
-        :return: the mathjax formatted string
-        """
-        if '$' in string:
-            parts = string.split("$")
-            string = ""
-            for i, p in enumerate(parts):
-                if i % 2 == 0:
-                    string += p
-                else:
-                    string += '[mathjaxinline]' + p + '[/mathjaxinline]'
-        string = string.replace(r"\begin{equation}", "[mathjax]")
-        string = string.replace(r"\end{equation}", "[/mathjax]")
-        return string
+        print("\n\t[Warning : the css have been updated. Please upload it on the FUN plateform]")
+        return old_content
 
     def generate_text(self, file_name, output_name=None, environment="default"):
         """
@@ -287,7 +266,7 @@ class MOOC:
             for line in lines:
                 line = line.strip()
                 if len(line) > 0:
-                    content += "\n<p>" + self._latex_to_mathjax(line).strip() + "</p>"
+                    content += "\n<p>" + MOOCFormatter.latex_to_mathjax(line).strip() + "</p>"
 
             content += "\n</div></LINk>"
 
@@ -435,20 +414,20 @@ class MOOC:
             qcm_a = []
             qcm_c = []
             for line in lines:
-                line = self._latex_to_mathjax(line.strip())
+                line = MOOCFormatter.latex_to_mathjax(line.strip())
                 if len(line) > 0:
                     if line.startswith(tuple(keywords)):
                         current_env = line.split(":")[0]
 
                         # generate previous qcm ?
                         if len(qcm_a) > 0:
-                            global_text += self._qcm(qcm_a, qcm_c)
+                            global_text += MOOCFormatter.qcm(qcm_a, qcm_c)
                         qcm_a.clear()
                         qcm_c.clear()
 
                         # new exo ?
                         current_exo += 1
-                        global_text += self._simple_text('<b>Exercice ' + str(current_exo) + ' : </b>')
+                        global_text += MOOCFormatter.simple_text('<b>Exercice ' + str(current_exo) + ' : </b>')
                         print("New exercice recognized (number", current_exo, ") : ", current_env)
 
                         question = line.split(":")[1].strip()
@@ -459,16 +438,16 @@ class MOOC:
 
                             global_text += "<optionresponse>\n"
 
-                            global_text += self._simple_text(text.pop(0), inline=True)
+                            global_text += MOOCFormatter.simple_text(text.pop(0), inline=True)
                             for i in range(len(env)):
-                                global_text += self._choice(env[i], inline=True)
-                                global_text += self._simple_text(text[i], inline=True)
+                                global_text += MOOCFormatter.choice(env[i], inline=True)
+                                global_text += MOOCFormatter.simple_text(text[i], inline=True)
                             global_text += "\n</optionresponse>\n"
                         else:
                             if current_env == "IMAGE":
-                                global_text += self._insert_image(question)
+                                global_text += MOOCFormatter.insert_image(question)
                             else:
-                                global_text += self._simple_text(question, inline=False) + "\n"
+                                global_text += MOOCFormatter.simple_text(question, inline=False) + "\n"
 
                     elif line.startswith("-") and current_env == "QCM":
                         if line[1] == "A":
@@ -489,21 +468,21 @@ class MOOC:
                         else:
                             if self.params["left_delimiter"] in line:
                                 text, env = self._read_brackets_env(line)
-                                global_text += self._simple_text(text.pop(0))
+                                global_text += MOOCFormatter.simple_text(text.pop(0))
                                 for i in range(len(env)):
                                     if current_env == "CHOICE":
-                                        global_text += self._choice(env[i])
-                                        global_text += self._simple_text(text[i])
+                                        global_text += MOOCFormatter.choice(env[i])
+                                        global_text += MOOCFormatter.simple_text(text[i])
                                     elif current_env == "INPUT":
-                                        global_text += self._string_input(env[i])
-                                        global_text += self._simple_text(text[i])
+                                        global_text += MOOCFormatter.string_input(env[i])
+                                        global_text += MOOCFormatter.simple_text(text[i])
                                 global_text += "\n"
                             else:
-                                global_text += self._simple_text(line) + "\n"
+                                global_text += MOOCFormatter.simple_text(line) + "\n"
 
             # generate previous qcm ?
             if len(qcm_a) > 0:
-                global_text += self._qcm(qcm_a, qcm_c)
+                global_text += MOOCFormatter.qcm(qcm_a, qcm_c)
             qcm_a.clear()
             qcm_c.clear()
 
@@ -526,117 +505,6 @@ class MOOC:
         return MOOCUtils.extract_text(line,
                                       self.params["left_delimiter"],
                                       self.params["right_delimiter"])
-
-    @staticmethod
-    def _simple_text(text, inline=False):
-        if len(text) > 0:
-            if inline:
-                return '<p style="display:inline">' + text + '</p>'
-            else:
-                return '<p>' + text + '</p>'
-        return ""
-
-    @staticmethod
-    def _insert_image(name):
-        return '\t<center><image src="static/' + name + '"/></center>\n'
-
-    @staticmethod
-    def _qcm(answers, corrects):
-        text = ""
-        if len(corrects) > 1:
-            text += "<p><i> (plusieurs réponses possibles)</i></p>\n"
-            text += "<choiceresponse>\n\t<checkboxgroup>\n"
-            for j in range(len(answers)):
-                if j in corrects:
-                    text += '\t<choice correct="true">' + answers[j] + '</choice>\n'
-                else:
-                    text += '\t<choice correct="false">' + answers[j] + '</choice>\n'
-            text += "\t</checkboxgroup>\n</choiceresponse>\n\n"
-        else:
-            text += '\n<multiplechoiceresponse>\n\t<choicegroup type="MultipleChoice">\n'
-            for j in range(len(answers)):
-                if j in corrects:
-                    text += '\t<choice correct="true">' + answers[j] + '</choice>\n'
-                else:
-                    text += '\t<choice correct="false">' + answers[j] + '</choice>\n'
-            text += "\t</choicegroup>\n</multiplechoiceresponse>\n\n"
-        return text
-
-    @staticmethod
-    def _numerical_input(answer, inline_question=None, inline=False):
-        text = ""
-        # reads it as a list ?
-        answer = MOOCUtils.string_to_list(answer)
-
-        if isinstance(answer, list):
-            l = answer
-            answer = "["
-            for i in l[:-1]:
-                answer += str(i) + ', '
-            answer += str(l[-1]) + ']'
-        if inline:
-            text += '<numericalresponse answer="' + answer + '">\n'
-            if inline_question is not None:
-                text += '<p style="display:inline"> ' + inline_question + ' </p>'
-            text += '<textline label="inline_input" inline="1"/>\n</stringresponse>'
-        else:
-            text += '<stringresponse answer="' + answer + '">\n'
-            text += '\t<textline label="outline_input"/>\n</stringresponse>'
-        return text
-
-    @staticmethod
-    def _string_input(answer, inline_question=None, inline=False):
-        additional = []
-        text = ""
-
-        # reads it as a list ?
-        answer = MOOCUtils.string_to_list(answer)
-
-        if isinstance(answer, list):
-            additional = answer[1:]
-            answer = answer[0]
-        if inline:
-            text += '<stringresponse answer="' + answer + '">\n'
-            for a in additional:
-                text += '\t<additional_answer answer="' + a + '"></additional_answer>\n'
-            text += '\t'
-            if inline_question is not None:
-                text += '<p style="display:inline"> ' + inline_question + ' </p>'
-            text += '<textline label="inline_input" inline="1"/>\n</stringresponse>'
-        else:
-            text += '<stringresponse answer="' + answer + '">\n'
-            for a in additional:
-                text += '\t<additional_answer answer="' + a + '"></additional_answer>\n'
-            text += '\t<textline label="outline_input"/>\n</stringresponse>'
-        return text
-
-    @staticmethod
-    def _choice(choices, correct=None, inline=False):
-        if not inline:
-            text = '<optionresponse>\n\t<optioninput options="('
-        else:
-            text = '<optioninput options="('
-
-        # reads it as a list ?
-        choices = MOOCUtils.string_to_list(choices)
-
-        # if the correct answer is not fond
-        if correct is None:
-            for i_c in range(len(choices)):
-                c = choices[i_c].strip()
-                if c.startswith("*"):
-                    c = c.replace("*", "")
-                    correct = c
-                choices[i_c] = c
-        for c in choices:
-            text += "'" + c + "'"
-            if not c == choices[-1]:
-                text += ","
-        if inline:
-            text += ')" correct="' + correct + '" inline="1"></optioninput>\n'
-        else:
-            text += ')" correct="' + correct + '"></optioninput>\n</optionresponse>\n'
-        return text
 
 
 if __name__ == '__main__':
