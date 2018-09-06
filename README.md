@@ -15,7 +15,8 @@ Dans ce module, chaque MOOC est repéré par son nom (e.g. <i>mon_mooc</i>). A c
     - <b>/latex</b> : contient les fichiers .html traduits à partir d'un fichier .tex
     - <b>/other</b> : contient les autres fichiers .html
     - <b>/inputs</b> : le repertoire où placer les fichiers à formatter (voir à la fin)
-  
+
+Cette structure et ces fichiers sont générés automatiquement à la création du MOOC (voir la section sur la classe `MOOC`).
 Dans chacun de ces dossiers, les fichiers html générés sont formatés pour être directement copiables sur la plateforme FUN sans modification.
 
 ##### ATTENTION : une fois le fichier css créé (instanciation du nouveau MOOC), il faudra impérativement l'uploader sur FUN sans quoi la mise en forme ne sera pas prise en compte. Chaque fois que le fichier est modifié, il faudra de nouveau l'uploader sur FUN.
