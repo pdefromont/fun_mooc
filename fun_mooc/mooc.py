@@ -262,11 +262,22 @@ class MOOC:
             print("Reading file ", file_name)
 
             content = '<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<div class="obspm_mooc_' + environment + '">\n'
+            latex_env = False
 
             for line in lines:
                 line = line.strip()
                 if len(line) > 0:
-                    content += "\n<p>" + MOOCFormatter.latex_to_mathjax(line).strip() + "</p>"
+                    formatted = MOOCFormatter.latex_to_mathjax(line).strip()
+                    if latex_env and formatted.startswith("[/mathjax]"):
+                        latex_env = False
+                        content += "\n" + MOOCFormatter.latex_to_mathjax(line).strip()
+                    elif not latex_env and formatted.startswith('[mathjax]'):
+                        latex_env = True
+                        content += "\n" + MOOCFormatter.latex_to_mathjax(line).strip()
+                    elif latex_env:
+                        content += "\n" + MOOCFormatter.latex_to_mathjax(line).strip()
+                    else:
+                        content += "\n<p>" + MOOCFormatter.latex_to_mathjax(line).strip() + "</p>"
 
             content += "\n</div></LINk>"
 
@@ -279,11 +290,12 @@ class MOOC:
         except FileNotFoundError:
             print("Error : the file", file_name, "does not exists !")
 
-    def generate_latex_page(self, file_name, output_name=None):
+    def generate_latex_page(self, file_name, output_name=None, environment="latex"):
         """
         Translates a .tex file to a correctly-formated html file for FUN.
         :param file_name: the path of the input .tex file. This file can contains laTex code.
         :param output_name: the name of the output file. If not specified, the file is called as the input. The ouptut file is placed in the /latex/ folder.
+        :param environment: the name of the environment, 'latex' by default.
         :return: True if the file was correctly written, False else.
         """
         print("Formating file", file_name)
@@ -333,9 +345,13 @@ class MOOC:
 
         # global style
         parts = file_content.split("<body>")
-        file_content = parts[
-                           0] + "<body>" + "\n" + '<LINK rel="stylesheet" type="text/css" href="/static/' + self.name + '.css">\n<div class="obspm_mooc_latex">\n' + \
-                       parts[1]
+        file_content = parts[0] \
+                       + '<body>\n<LINK rel="stylesheet" type="text/css" href="/static/' \
+                       + self.name \
+                       + '.css">\n<div class="obspm_mooc_' \
+                       + environment \
+                       + '">\n' \
+                       + parts[1]
 
         summary_key = r"\fbox{\parbox{\textwidth}{\textbf{Résumé} : "
         if summary_key in tex_file_content:

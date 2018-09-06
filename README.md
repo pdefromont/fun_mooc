@@ -74,6 +74,8 @@ MOOC mon_mooc correctly loaded.
 >>> m.create_css_environment(title="ma_boite", color="#e3eae4", header="Mon en-tête", lateral_bar=True, shadow=True)
 ...
 ```
+Voici ci dessous un exemple de text formaté (voir en dessous) dans un environnement personnalisé avec un en-tête, une barre latérale et une ombre.
+![Exemple de texte formaté dans un environnement personnalisé](c1.png?raw=true "Un exemple de texte formatté")
 - Pour mettre à jour une autre variable (e.g. la couleur du fond `global_background_color`), appeler la fonction `set_param(key, color)`
 
 ##### Attention : chaque fois que le fichier css est modifié, il faudra de nouveau l'uploader sur FUN.
@@ -86,7 +88,8 @@ Il existe trois formatages différents :
 
 - `generate_text()` : cette fonction lit le fichier en entrée et crée un fichier de sortie dans le répertoire <b>other/</b>.
 Le texte ainsi généré peut être mis en forme selon l'environnement souhaité en spécifiant la variable `environment=...`
-- `generate_latex_page()` : met en page un fichier .tex de manière à ce qu'il apparaisse correctement sur FUN.
+
+- `generate_latex_page()` : met en page un fichier .tex de manière à ce qu'il apparaisse correctement sur FUN. Il est là aussi possible de spécifier l'environnement avec la variable `environment`
     * remarque 1 : cette fonction nécéssite [pandoc](https://pandoc.org/) !
     * remarque 2 : cette fonction repère les 'résumés' laTex quand ils sont formatés de la manière suivante :
     ```latex
