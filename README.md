@@ -122,6 +122,8 @@ Voici une belle phrase qui va apparaître telle quelle. Sauf que $\alpha=3x^2$ s
     R_{\mu\nu} -\frac{1}{2}g_{\mu\nu}R \propto T_{\mu\nu}
 \end{equation}
 ```
+Voici un extrait du rendu du fichier précédent (on a omis l'image est les lignes de commentaire)
+![Exemple d'exercice formaté](c2.png?raw=true "Le fromatage de l'exercice précédent")
 
 Les différents exercices reconnus sont donc :
 - `QCM:` : un exercice à choix multiples. Le ou les bonnes réponses sont repérées par le `-A`
